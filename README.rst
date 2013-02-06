@@ -15,7 +15,6 @@ Example Usage
 
     require_once('EncryptedPickle.php');
     
-    
     $passphrases = array(
         0 => 'Change me! CHange me! CHAnge me! CHANge me!'
              . 'CHANGe me! CHANGE ME! CHANGE Me! CHANGE ME!',
@@ -36,7 +35,13 @@ Example Usage
     echo("* unsealed:\n");
     print_r($unsealed);
     
-    // Customization example
+
+Customization Example
+=====================
+
+.. code-block:: php
+
+    require_once('EncryptedPickle.php');
     
     // You can use different passphrases for signature and encryption
     $signature_passphrases = array(
@@ -44,8 +49,15 @@ Example Usage
              . 'change me! change me! change me! change me!',
     );
     
-    $encoder->set_signature_passphrases($signature_passphrases);
-    
+    $encryption_passphrases = array(
+        0 => 'Change me! CHange me! CHAnge me! CHANge me!'
+             . 'CHANGe me! CHANGE ME! CHANGE Me! CHANGE ME!',
+    );
+
+    $data = array('example' => 123, 'test' => 'testing');
+
+    $encoder = new EncryptedPickle($signature_passphrases, $encryption_passphrases);
+
     $encryption = array(
         /**
          * Add new encryption algorithm specification with id = 255.
@@ -67,7 +79,7 @@ Example Usage
             'pbkdf2_iterations' => 10,
         ),
     );
-    $encoder->set_algorithms(NULL, $encryption = $encryption);
+    $encoder->set_algorithms($signature = NULL, $encryption = $encryption);
     
     $options = array(
         // Use above defined encryption algorithm (id = 255).
@@ -100,6 +112,7 @@ Example Usage
     if (isset($unsealed_options['info']['timestamp'])) {
         echo("* timestamp: " . $unsealed_options['info']['timestamp'] . "\n");
     }
+
 
 Copyright and License
 =====================
