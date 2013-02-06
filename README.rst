@@ -54,7 +54,7 @@ Example Usage
          * for next added algorithm.
          */
         255 => array(
-            // Algorithm name defined in EncryptedPickle.ALGORITHMS.
+            // Algorithm name defined in EncryptedPickle::$ALGORITHMS.
             'algorithm' => 'aes-256-cbc',
     
             // Salt size for PBKDF2 key.
