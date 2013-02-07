@@ -2,7 +2,7 @@
 
 class EncryptedPickle {
 
-    protected static $MAGIC = 'EP';
+    protected static $DEFAULT_MAGIC = 'EP';
 
     protected static $VERSIONS = array(
         1 => array(
@@ -145,8 +145,10 @@ class EncryptedPickle {
 
     protected $options;
 
+    protected $magic;
 
-    public function __construct(array $signature_passphrases = NULL, array $encryption_passphrases = NULL) {
+
+    public function __construct(array $signature_passphrases = NULL, array $encryption_passphrases = NULL, array $options = NULL) {
         $this->signature_algorithms = self::$DEFAULT_SIGNATURE;
         $this->encryption_algorithms = self::$DEFAULT_ENCRYPTION;
         $this->serialization_algorithms = self::$DEFAULT_SERIALIZATION;
@@ -155,7 +157,13 @@ class EncryptedPickle {
         $this->signature_passphrases = self::update_array($signature_passphrases, array(), TRUE);
         $this->encryption_passphrases = self::update_array($encryption_passphrases, array(), TRUE);
 
+        $this->magic = self::$DEFAULT_MAGIC;
+
         $this->options = self::$DEFAULT_OPTIONS;
+
+        if ($options !== NULL) {
+            $this->set_options($options);
+        }
     }
 
 
@@ -207,6 +215,11 @@ class EncryptedPickle {
             return $this->options;
         }
 
+        if (array_key_exists('magic', $options)) {
+            $this->set_magic($options['magic']);
+            unset($options['magic']);
+        }
+
         if (array_key_exists('flags', $options)) {
             $flags = $options['flags'];
             unset($options['flags']);
@@ -242,6 +255,18 @@ class EncryptedPickle {
 
     public function get_options() {
         return $this->options;
+    }
+
+
+    public function set_magic($magic) {
+        if (is_string($magic) || $magic === NULL) {
+            $this->magic = $magic;
+        }
+    }
+
+
+    public function get_magic() {
+        return $this->magic;
     }
 
 
@@ -496,9 +521,13 @@ class EncryptedPickle {
 
 
     private function read_magic($data) {
-        $magic_size = strlen(self::$MAGIC);
+        if ($this->magic === NULL) {
+            return $data;
+        }
+
+        $magic_size = strlen($this->magic);
         $magic = substr($data, 0, $magic_size);
-        if ($magic !== self::$MAGIC) {
+        if ($magic !== $this->magic) {
             throw new Exception('Invalid magic');
         }
         $data = substr($data, $magic_size);
@@ -508,7 +537,11 @@ class EncryptedPickle {
 
 
     private function add_magic($data) {
-        return self::$MAGIC . $data;
+        if ($this->magic !== NULL) {
+            return $this->magic . $data;
+        }
+
+        return $data;
     }
 
 
