@@ -310,17 +310,19 @@ class EncryptedPickle {
 
 
     public function verify_signature($data) {
-        $data = $this->read_magic($data);
+        $data = $this->remove_magic($data);
         $data = self::urlsafe_b64_decode($data);
         $options = $this->read_header($data);
+        $data = $this->add_magic($data);
         $this->unsign_data($data, $options);
     }
 
 
     public function get_data_options($data, $verify_signature = TRUE) {
-        $data = $this->read_magic($data);
+        $data = $this->remove_magic($data);
         $data = self::urlsafe_b64_decode($data);
         $options = $this->read_header($data);
+        $data = $this->add_magic($data);
 
         if ($verify_signature) {
             $data = $this->unsign_data($data, $options);
