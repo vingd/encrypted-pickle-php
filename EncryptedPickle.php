@@ -2,6 +2,8 @@
 
 class EncryptedPickle {
 
+    public static $version = '0.1.3';
+
     protected static $DEFAULT_MAGIC = 'EP';
 
     protected static $VERSIONS = array(
