@@ -261,6 +261,8 @@ class EncryptedPickle {
     public function set_magic($magic) {
         if (is_string($magic) || $magic === NULL) {
             $this->magic = $magic;
+        } else {
+            throw new Exception('Invalid value for magic');
         }
     }
 
@@ -277,7 +279,9 @@ class EncryptedPickle {
         $data = $this->compress_data($data, $options);
         $data = $this->encrypt_data($data, $options);
         $data = $this->add_header($data, $options);
+        $data = $this->add_magic($data);
         $data = $this->sign_data($data, $options);
+        $data = $this->remove_magic($data);
         $data = self::urlsafe_b64_encode($data);
         $data = $this->add_magic($data);
 
@@ -286,10 +290,12 @@ class EncryptedPickle {
 
 
     public function unseal($data, $return_options = FALSE) {
-        $data = $this->read_magic($data);
+        $data = $this->remove_magic($data);
         $data = $this->urlsafe_b64_decode($data);
         $options = $this->read_header($data);
+        $data = $this->add_magic($data);
         $data = $this->unsign_data($data, $options);
+        $data = $this->remove_magic($data);
         $data = $this->remove_header($data, $options);
         $data = $this->decrypt_data($data, $options);
         $data = $this->decompress_data($data, $options);
@@ -520,7 +526,7 @@ class EncryptedPickle {
     }
 
 
-    private function read_magic($data) {
+    private function remove_magic($data) {
         if ($this->magic === NULL) {
             return $data;
         }
